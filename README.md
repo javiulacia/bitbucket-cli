@@ -1,77 +1,91 @@
 # bitbucket-cli
 
-A modern CLI for Bitbucket, inspired by GitHub CLI — manage repositories, pull requests, and workflows from your terminal.
+`bitbucket-cli` is a Go CLI for Bitbucket Cloud built on the official Bitbucket Cloud REST API v2.
 
----
+This MVP implements:
 
-## Overview
+- Authentication with Bitbucket Cloud using API token + email via HTTP Basic auth
+- Authentication with access token via Bearer auth
+- Repository commands for listing, viewing, and creating repositories
+- Pull request commands for listing, viewing, and creating pull requests
+- Human-readable output and `--json`
 
-`bitbucket-cli` is a developer-focused command-line tool designed to bring Bitbucket workflows directly into your terminal.
+## Bitbucket API basis
 
-It aims to simplify everyday tasks like managing repositories, creating pull requests, and automating workflows — without leaving the CLI.
+The implementation follows the official Atlassian Bitbucket Cloud REST documentation:
 
----
+- Auth intro: <https://developer.atlassian.com/cloud/bitbucket/rest/intro/#authentication>
+- Current user: `GET /2.0/user`
+- Repositories: `GET /2.0/repositories/{workspace}`, `GET/POST /2.0/repositories/{workspace}/{repo_slug}`
+- Pull requests: `GET/POST /2.0/repositories/{workspace}/{repo_slug}/pullrequests`
 
-## Features (planned & evolving)
+## Build
 
-- Authentication (Bitbucket Cloud)
-- Repository management
-  - List, clone, and create repositories
-  - Clone all repositories in a workspace
-- Pull request workflows
-  - List, view, create, and merge PRs
-  - Checkout PR branches locally
-- Smart defaults
-  - Auto-detect repository and current branch
-- ⚡ Developer productivity tools
-  - Open repos and PRs in browser
-  - Sync local repositories
-- Machine-friendly output (`--json`)
-- Fast, concurrent operations (written in Go)
+```bash
+go build ./cmd/bb
+```
 
----
+## Usage
 
-## Goals
+Authenticate with an API token:
 
-- Provide a **first-class CLI experience for Bitbucket**
-- Reduce friction in daily developer workflows
-- Offer **sensible defaults + powerful automation**
-- Be composable, scriptable, and fast
+```bash
+./bb auth login --email you@example.com --api-token <token> --workspace <workspace>
+```
 
----
+Authenticate with a bearer token:
 
-## Built with
+```bash
+./bb auth login --access-token <token> --workspace <workspace>
+```
 
-- Go (Golang)
-- Bitbucket REST API
+Check auth status:
 
----
+```bash
+./bb auth status
+```
+
+List repositories:
+
+```bash
+./bb repo list --workspace <workspace>
+./bb repo list --json
+```
+
+View or create a repository:
+
+```bash
+./bb repo view <repo> --workspace <workspace>
+./bb repo create <repo> --workspace <workspace>
+```
+
+List or view pull requests:
+
+```bash
+./bb pr list --repo <repo> --workspace <workspace>
+./bb pr view 123 --repo <repo> --workspace <workspace>
+```
+
+Create a pull request:
+
+```bash
+./bb pr create \
+  --repo <repo> \
+  --workspace <workspace> \
+  --title "My change" \
+  --source feature/my-change \
+  --destination main \
+  --description "Details"
+```
+
+## Config
+
+Credentials are stored in the user config directory:
+
+- macOS: `~/Library/Application Support/bitbucket-cli/config.json`
+- Linux: `~/.config/bitbucket-cli/config.json`
+- Windows: `%AppData%\bitbucket-cli\config.json`
 
 ## Status
 
-This project is in early development (MVP phase).  
-Core functionality is being built incrementally, starting with repository and pull request workflows.
-
----
-
-## Installation (coming soon)
-
-Instructions for installation will be added as the project evolves.
-
----
-
-## Contributing
-
-Contributions, ideas, and feedback are welcome.
-
-If you'd like to contribute:
-
-1. Fork the repository
-2. Create a feature branch
-3. Open a pull request
-
----
-
-## License
-
-MIT
+The repository started as a skeleton. The current implementation is a working MVP focused on the documented Bitbucket Cloud auth, repository, and pull request endpoints.
